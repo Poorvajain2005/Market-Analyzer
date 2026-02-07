@@ -340,7 +340,7 @@ function localHeuristicAnalysis(ideaText: string): MarketAnalysisOutput {
       monetizationPotential: scoreResult.monetizationPotential!
     },
     riskLevel,
-    summary: ideaText.length > 120 ? ideaText.slice(0, 117) + '...' : ideaText,
+    summary: `Summary: This is a ${verdict.toLowerCase()} idea with a growth score of ${growthScore}/100.`,
     keyInsights: [
       `Growth Score calculated as sum of 5 components: ${growthScore}/100`,
       `Strongest factor: ${[scoreResult.marketSize!, scoreResult.competitionPressure!, scoreResult.technicalFeasibility!, scoreResult.differentiation!, scoreResult.monetizationPotential!].sort((a, b) => b.score - a.score)[0].explanation}`,

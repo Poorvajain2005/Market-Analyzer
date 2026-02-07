@@ -13,6 +13,7 @@ interface ActionCardProps {
   color: "blue" | "purple" | "green" | "orange";
   recommended?: boolean;
   contextHint?: string;
+  onClick?: () => void;
 }
 
 const colorClasses = {
@@ -36,6 +37,7 @@ export function ActionCard({
   color,
   recommended = false,
   contextHint,
+  onClick,
 }: ActionCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -45,11 +47,21 @@ export function ActionCard({
       transition={{ duration: 0.2 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (!onClick) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <Card
         className={cn(
           "group cursor-pointer border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300",
-          glowClasses[color]
+          glowClasses[color],
         )}
       >
         <CardContent className="relative px-6 pb-6 pt-4 space-y-4">
@@ -58,7 +70,7 @@ export function ActionCard({
             <div
               className={cn(
                 "inline-flex h-14 w-14 items-center justify-center rounded-2xl transition-colors",
-                colorClasses[color]
+                colorClasses[color],
               )}
             >
               <Icon className="h-7 w-7" />

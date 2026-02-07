@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/icons/logo";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,16 +23,23 @@ import {
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Market Chat", href: "/dashboard", icon: MessageSquare },
-  { name: "Simulations", href: "/simulations", icon: Target },
-  { name: "Strategies", href: "/strategies", icon: Lightbulb },
+  { name: "Recommended", href: "/recommended", icon: Lightbulb },
+  { name: "Run Simulation", href: "/simulations/run", icon: Target },
+  { name: "Simulate Scenarios", href: "/simulations", icon: Target },
+  { name: "Generate Strategy", href: "/strategies/generate", icon: Lightbulb },
+  { name: "AI Growth Plans", href: "/strategies", icon: Lightbulb },
+  { name: "Analyze Market Data", href: "/analytics", icon: FileText },
+  { name: "Deep Insights", href: "/insights", icon: MessageSquare },
+  { name: "Create Agent", href: "/agents/create", icon: Bot },
   { name: "Agents", href: "/agents", icon: Bot },
+  { name: "Deploy", href: "/deploy", icon: Target },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "History", href: "/history", icon: History },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
 
@@ -51,18 +58,19 @@ export function AppSidebar() {
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link key={item.name} href={item.href}>
+            <div key={item.name}>
               <Button
                 variant="ghost"
+                onClick={() => router.push(item.href)}
                 className={cn(
                   "w-full justify-start gap-3 rounded-xl px-4 py-3 transition-all hover:bg-accent/50",
-                  isActive && "bg-accent text-accent-foreground shadow-sm"
+                  isActive && "bg-accent text-accent-foreground shadow-sm",
                 )}
               >
                 <item.icon className="h-5 w-5" />
                 <span className="text-sm font-medium">{item.name}</span>
               </Button>
-            </Link>
+            </div>
           );
         })}
       </nav>
@@ -70,15 +78,14 @@ export function AppSidebar() {
       {/* Bottom Section */}
       <div className="border-t border-border/40 p-4 space-y-3">
         {/* Settings */}
-        <Link href="/settings">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 rounded-xl px-4 py-3 hover:bg-accent/50"
-          >
-            <Settings className="h-5 w-5" />
-            <span className="text-sm font-medium">Settings</span>
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/settings")}
+          className="w-full justify-start gap-3 rounded-xl px-4 py-3 hover:bg-accent/50"
+        >
+          <Settings className="h-5 w-5" />
+          <span className="text-sm font-medium">Settings</span>
+        </Button>
 
         {/* Theme Toggle */}
         <Button

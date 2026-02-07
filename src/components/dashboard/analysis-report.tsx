@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import type { MarketAnalysisOutput } from "@/ai/flows/generate-market-analysis-report";
 import {
   Card,
@@ -43,6 +44,17 @@ const Section = ({ title, children }: { title: string, children: React.ReactNode
 );
 
 export function AnalysisReport({ data, ideaText, onReset, compact = false }: AnalysisReportProps) {
+  const [showFullIdea, setShowFullIdea] = useState(false);
+  const redactIdea = (text: string) => {
+    if (!text) return "";
+    // only show a short preview by default to avoid exposing the full user-submitted content
+    const MAX_PREVIEW = 120;
+    if (showFullIdea) return text;
+    return text.length > MAX_PREVIEW
+      ? `${text.slice(0, MAX_PREVIEW)}... (redacted)`
+      : "(redacted)";
+  };
+
   if (compact) {
     return (
       <div className="space-y-4">
@@ -90,47 +102,91 @@ export function AnalysisReport({ data, ideaText, onReset, compact = false }: Ana
 
   return (
     <div className="space-y-8">
-       <Button variant="outline" onClick={onReset} className="mb-4">
+      <Button variant="outline" onClick={onReset} className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Analyze Another Idea
       </Button>
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Analysis Report</CardTitle>
+          <CardTitle className="font-headline text-3xl">
+            Analysis Report
+          </CardTitle>
           <CardDescription className="italic">
-            &quot;{ideaText}&quot;
+            "{redactIdea(ideaText)}"
+            {/* allow explicit reveal so the full user content isn't visible by default */}
+            {ideaText && !showFullIdea && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFullIdea(true)}
+                className="ml-3"
+              >
+                Show full idea
+              </Button>
+            )}
+            {showFullIdea && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFullIdea(false)}
+                className="ml-3"
+              >
+                Hide
+              </Button>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-medium text-muted-foreground">Verdict</CardTitle>
-              </CardHeader>
-              <CardContent><p className="text-2xl font-bold font-headline text-primary">{data.verdict}</p></CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-medium text-muted-foreground">Growth Score</CardTitle>
-              </CardHeader>
-              <CardContent><p className="text-2xl font-bold font-headline text-primary">{data.growthScore}/100</p></CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-medium text-muted-foreground">Risk Level</CardTitle>
+                <CardTitle className="text-base font-medium text-muted-foreground">
+                  Verdict
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <Badge variant={getRiskLevelVariant(data.riskLevel)} className="text-lg">{data.riskLevel}</Badge>
+                <p className="text-2xl font-bold font-headline text-primary">
+                  {data.verdict}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium text-muted-foreground">
+                  Growth Score
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold font-headline text-primary">
+                  {data.growthScore}/100
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base font-medium text-muted-foreground">
+                  Risk Level
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge
+                  variant={getRiskLevelVariant(data.riskLevel)}
+                  className="text-lg"
+                >
+                  {data.riskLevel}
+                </Badge>
               </CardContent>
             </Card>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-6">
             <Section title="One-Line Summary">
-              <p className="text-lg">{data.summary}</p>
+              <p className="text-lg leading-relaxed break-words">
+                {data.summary}
+              </p>
             </Section>
 
             <Section title="Key Insights">
@@ -148,7 +204,7 @@ export function AnalysisReport({ data, ideaText, onReset, compact = false }: Ana
             <Section title="Profit Strategy">
               <p className="whitespace-pre-wrap">{data.profitStrategy}</p>
             </Section>
-            
+
             <Section title="Competitor Landscape">
               <p className="whitespace-pre-wrap">{data.competitors}</p>
             </Section>
@@ -157,11 +213,13 @@ export function AnalysisReport({ data, ideaText, onReset, compact = false }: Ana
               <p className="font-semibold text-foreground">{data.nextAction}</p>
             </Section>
           </div>
-          
+
           <Separator />
 
           <div>
-             <h3 className="font-headline text-xl font-semibold mb-4 text-center">Market Opportunity Snapshot</h3>
+            <h3 className="font-headline text-xl font-semibold mb-4 text-center">
+              Market Opportunity Snapshot
+            </h3>
             <div className="h-[400px]">
               <MarketRadarChart data={data.visualData} />
             </div>
@@ -170,9 +228,7 @@ export function AnalysisReport({ data, ideaText, onReset, compact = false }: Ana
       </Card>
 
       {data.footnote && (
-        <p className="text-xs text-muted-foreground">
-          {data.footnote}
-        </p>
+        <p className="text-xs text-muted-foreground">{data.footnote}</p>
       )}
     </div>
   );
